@@ -1,33 +1,54 @@
 sources:
-  postgresql: # GCP -  CLOUD SQL
-    kind: cloud-sql-postgres
-    project: ${PROJECT_ID}
-    region: us-central1
-    instance: software-assistant
-    database: tickets-db
-    user: ${DB_USER}
-    password: ${DB_PASS}
-  # postgresql: # LOCAL
+  # postgresql: # GCP -  CLOUD SQL
+  #   kind: cloud-sql-postgres
+  #   project: ${PROJECT_ID}
+  #   region: us-central1
+  #   instance: software-assistant
+  #   database: tickets-db
+  #   user: ${DB_USER}
+  #   password: ${DB_PASS}
+  
+  # postgresql: # SUPABASE (FREE ALTERNATIVE)
   #   kind: postgres
-  #   host: 127.0.0.1
+  #   host: db.your-project-ref.supabase.co
   #   port: 5432
-  #   database: ticketsdb
+  #   database: postgres
   #   user: postgres
-  #   password: admin
+  #   password: ${SUPABASE_DB_PASSWORD}
+  
+  postgresql: # LOCAL
+    kind: postgres
+    host: 127.0.0.1
+    port: 5432
+    database: ticketsdb
+    user: postgres
+    password: admin
 tools:
+  get-all-tickets:
+    kind: postgres-sql
+    source: postgresql
+    description: Retrieve all tickets in the system.
+    statement: |
+      SELECT * FROM tickets;
   search-tickets:
     kind: postgres-sql
     source: postgresql
-    description: Search for similar tickets based on their descriptions.
+    description: Search for similar tickets based on their descriptions using text search (local development).
     parameters:
       - name: query
         type: string
-        description: The query to perform vector search with.
+        description: The query to search for in ticket titles and descriptions.
     statement: |
-      SELECT ticket_id, title, description, assignee, priority, status, (embedding <=> embedding('text-embedding-005', $1)::vector) as distance
+      SELECT ticket_id, title, description, assignee, priority, status,
+             CASE
+               WHEN title ILIKE '%' || $1 || '%' THEN 0.1
+               WHEN description ILIKE '%' || $1 || '%' THEN 0.2
+               ELSE 1.0
+             END as similarity_score
       FROM tickets
-      ORDER BY distance ASC
-      LIMIT 3;
+      WHERE title ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'
+      ORDER BY similarity_score ASC, ticket_id DESC
+      LIMIT 5;
   get-ticket-by-id:
     kind: postgres-sql
     source: postgresql
@@ -136,3 +157,4 @@ toolsets:
     - update-ticket-priority
     - update-ticket-status
     - create-new-ticket
+    - get-all-tickets

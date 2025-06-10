@@ -10,4 +10,14 @@ dependencies = [
     "google-adk==1.2.1",
     "python-dotenv==1.1.0",
     "toolbox-core==0.1.0",
+    "sentence-transformers>=2.2.0",
+    "psycopg2-binary>=2.9.0",
+    "numpy>=1.21.0",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["software_bug_assistant*"]

@@ -1,3 +1,6 @@
+-- Create the pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- Create the tickets table
 CREATE TABLE tickets (
     ticket_id SERIAL PRIMARY KEY,
@@ -7,7 +10,8 @@ CREATE TABLE tickets (
     priority VARCHAR(50),
     status VARCHAR(50) DEFAULT 'Open',
     creation_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    embedding vector(384) -- Embedding column for semantic search
 );
 
 -- Create trigger function to update updated_time
@@ -37,6 +41,11 @@ INSERT INTO tickets (title, description, assignee, priority, status) VALUES
 ('Search Filter "Date Range" Not Applying Correctly', 'The "Date Range" filter on the search results page does not filter records accurately; results outside the specified date range are still displayed.', 'samuel.green@example.com', 'P2 - Medium', 'Resolved'),
 ('Typo in Error Message: "Unathorized Access"', 'The error message displayed when a user attempts an unauthorized action reads "Unathorized Access" instead of "Unauthorized Access."', 'maria.rodriguez@example.com', 'P3 - Low', 'Resolved'),
 ('Intermittent File Upload Failures for Large Files', 'Users are intermittently reporting that file uploads fail without a clear error message or explanation, especially for files exceeding 10MB in size.', 'frank.white@example.com', 'P1 - High', 'Open');
+
+-- Create vector index for efficient similarity search (will be populated by migration script)
+CREATE INDEX IF NOT EXISTS tickets_embedding_cosine_idx 
+ON tickets USING ivfflat (embedding vector_cosine_ops) 
+WITH (lists = 100);
 
 -- Display success message
 SELECT 'Database initialized successfully!' as message;

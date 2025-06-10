@@ -1,58 +1,59 @@
-# Database Setup
+# Simple Setup
 
-This directory contains files for setting up the PostgreSQL tickets database locally using Docker.
+Manual setup for the Software Bug Assistant with simplified, streamlined code.
 
-## Quick Start
+## Prerequisites
 
-1. Start the database:
+- **uv**: Install with `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **Docker**: For running PostgreSQL database
+
+## Setup Steps
+
+1. **Install project and dependencies**:
+   ```bash
+   cd .. && uv pip install -e .
+   ```
+
+2. **Start database**:
    ```bash
    docker-compose up -d
    ```
 
-2. Verify the setup:
+3. **Generate embeddings**:
    ```bash
-   docker exec -it tickets-db psql -U postgres -d ticketsdb -c "SELECT COUNT(*) FROM tickets;"
+   uv run migrate_embeddings_simple.py
    ```
 
-3. Stop the database:
+4. **Test semantic search**:
    ```bash
-   docker-compose down
+   uv run test_semantic_search.py
    ```
 
-## Files
+## Database Connection
 
-- `docker-compose.yml` - Docker Compose configuration for PostgreSQL
-- `init-db.sql` - Database schema and sample data initialization script
-
-## Connection Details
-
-- **Host**: localhost
-- **Port**: 5432
-- **Database**: ticketsdb
+- **Host**: localhost:5432
+- **Database**: ticketsdb  
 - **Username**: postgres
 - **Password**: admin
 
-## Manual Setup (Alternative)
+## Code Simplifications
 
-If you prefer to set up PostgreSQL manually instead of using Docker, follow the original instructions in the main README.md file.
+The setup has been streamlined with the following improvements:
 
-## Environment Variables for MCP Toolbox
+### Removed Files
+- `setup.py` - Automated setup script (manual process only)
+- `requirements.txt` - Redundant with pyproject.toml
+- `software_bug_assistant.egg-info/` - Auto-generated package metadata
 
-When using the MCP Toolbox, update your `deployment/mcp-toolbox/tools.yaml` file to point to this database:
+### Consolidated Code
+- **Database utilities** - Shared `db_utils.py` with environment variable support
+- **Embedding service** - Unified `FreeEmbeddingService` class with both sync/async methods
+- **Migration script** - Standalone script that doesn't require full agent system
+- **Dependencies** - Pure uv-based approach in `pyproject.toml`
 
-```yaml
-sources:
-  postgresql:
-    kind: postgres
-    host: 127.0.0.1
-    port: 5432
-    database: ticketsdb
-    user: ${DB_USER}
-    password: ${DB_PASS}
-```
+### Files
 
-Set the environment variables:
-```bash
-export DB_USER=postgres
-export DB_PASS=admin
-```
+- `docker-compose.yml` - PostgreSQL database with pgvector extension
+- `init-db.sql` - Database schema, sample data, and vector index
+- `migrate_embeddings_simple.py` - Standalone embedding migration
+- `test_semantic_search.py` - Test script for semantic search functionality

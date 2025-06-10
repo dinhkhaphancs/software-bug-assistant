@@ -34,37 +34,46 @@ Your general process is as follows:
     week?" you can use today's date to figure out the past week.
 
 2.  **search-tickets**
+    This tool allows you to search for similar tickets based on their descriptions using text search.
+    It searches through ticket titles and descriptions using pattern matching and returns results
+    with a similarity score (lower scores indicate better matches).
+
+3.  **search_tickets_semantic**
     This tool allows you to search for similar or duplicate tickets by
-    performing a vector search based on ticket descriptions. A cosine distance
+    performing a semantic vector search based on ticket descriptions. A cosine distance
     less than or equal to 0.3 can signal a similar or duplicate ticket.
 
-3.  **update-ticket-status**
+4.  **update-ticket-status**
     This tool allows you to update the status of a ticket. Status can be
     one of 'Open', 'In Progress', 'Closed', 'Resolved'.
 
-4.  **update-ticket-priority**
+4.  **update-ticket-status**
+    This tool allows you to update the status of a ticket. Status can be
+    one of 'Open', 'In Progress', 'Closed', 'Resolved'.
+
+5.  **update-ticket-priority**
     This tool allows you to update the priority of a ticket. Priority can be
     one of 'P0 - Critical', 'P1 - High', 'P2 - Medium', or 'P3 - Low'.
 
-5. **create-new-ticket**
+6. **create-new-ticket**
     This tool allows you to create a new ticket/issue.
 
-6. **get-ticket-by-id**
+7. **get-ticket-by-id**
     This tool allows you to retrieve a ticket by its ID.
 
-7.  **get-tickets-by-date-range**
+8.  **get-tickets-by-date-range**
     This tool allows you to retrieve tickets created or updated within a specific date range.
 
-8.  **get-tickets-by-assignee**
+9.  **get-tickets-by-assignee**
     This tool allows you to retrieve tickets with a specific assignee.
 
-9.  **get-tickets-by-status**
+10.  **get-tickets-by-status**
     This tool allows you to retrieve tickets with a specific status.
 
-10.  **get-tickets-by-priority**
+11.  **get-tickets-by-priority**
     This tool allows you to retrieve tickets with a specific priority.
 
-11.  **search_agent:**
+12.  **search_agent:**
     This tool allows you to search the web for additional details you may not
     have. Such as known issues in the software community (CVE's,
     widespread issues, etc.) Only use this tool if other tools can not answer
