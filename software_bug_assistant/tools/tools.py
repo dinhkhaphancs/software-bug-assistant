@@ -29,7 +29,7 @@ from toolbox_core import ToolboxSyncClient
 
 from dotenv import load_dotenv
 
-from embedding.free_embeddings import get_embedding_service, generate_embedding
+from embeddings.embeddings import get_embedding_service, generate_embedding
 
 # Load environment variables
 load_dotenv()
@@ -51,12 +51,13 @@ def get_most_handsome_boy_name() -> dict:
 
 
 # ----- Free Vector Search Tool -----
-def search_tickets_semantic(query: str) -> Dict[str, Any]:
+def search_tickets_semantic(query: str, limit: int = 10) -> Dict[str, Any]:
     """
     Search for similar tickets using free semantic embeddings.
     
     Args:
         query: The search query text
+        limit: Maximum number of results to return
         
     Returns:
         Dictionary with search results or error message
@@ -72,7 +73,7 @@ def search_tickets_semantic(query: str) -> Dict[str, Any]:
         embedding_service = get_embedding_service()
         
         # Use synchronous search to avoid async issues
-        results = embedding_service.search_similar_tickets_sync(query, limit=5)
+        results = embedding_service.search_similar_tickets_sync(query, limit)
         
         return {
             "query": query,

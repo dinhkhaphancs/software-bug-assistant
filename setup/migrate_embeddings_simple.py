@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import the embedding service from the main module
-from embedding.free_embeddings import get_embedding_service
+from embeddings.embeddings import get_embedding_service
 
 def get_database_connection():
     """Get a database connection using environment variables or defaults."""

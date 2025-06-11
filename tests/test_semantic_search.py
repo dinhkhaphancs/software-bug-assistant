@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test semantic search functionality
 """
@@ -10,7 +9,7 @@ import asyncio
 # Add the parent directory to the path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from embedding.free_embeddings import get_embedding_service
+from embeddings.embeddings import get_embedding_service
 
 async def test_semantic_search():
     """Test the semantic search functionality."""

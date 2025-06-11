@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test the search_tickets_semantic function
 """
