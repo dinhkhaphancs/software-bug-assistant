@@ -27,28 +27,39 @@ tools:
   get-all-tickets:
     kind: postgres-sql
     source: postgresql
-    description: Retrieve all tickets in the system.
-    statement: |
-      SELECT * FROM tickets;
-  search-tickets:
-    kind: postgres-sql
-    source: postgresql
-    description: Search for similar tickets based on their descriptions using text search (local development).
+    description: Retrieve all tickets in the system with pagination support.
     parameters:
-      - name: query
+      - name: limit
         type: string
-        description: The query to search for in ticket titles and descriptions.
+        description: (Optional) The maximum number of tickets to return. Default is 50 if not specified.
+      - name: offset
+        type: string
+        description: (Optional) The number of tickets to skip for pagination. Default is 0 if not specified.
     statement: |
-      SELECT ticket_id, title, description, assignee, priority, status,
-             CASE
-               WHEN title ILIKE '%' || $1 || '%' THEN 0.1
-               WHEN description ILIKE '%' || $1 || '%' THEN 0.2
-               ELSE 1.0
-             END as similarity_score
-      FROM tickets
-      WHERE title ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'
-      ORDER BY similarity_score ASC, ticket_id DESC
-      LIMIT 5;
+      SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time 
+      FROM tickets 
+      ORDER BY ticket_id DESC 
+      LIMIT COALESCE($1::integer, 50) 
+      OFFSET COALESCE($2::integer, 0);
+  # search-tickets:
+  #   kind: postgres-sql
+  #   source: postgresql
+  #   description: Search for similar tickets based on their descriptions using text search (local development).
+  #   parameters:
+  #     - name: query
+  #       type: string
+  #       description: The query to search for in ticket titles and descriptions.
+  #   statement: |
+  #     SELECT ticket_id, title, description, assignee, priority, status,
+  #            CASE
+  #              WHEN title ILIKE '%' || $1 || '%' THEN 0.1
+  #              WHEN description ILIKE '%' || $1 || '%' THEN 0.2
+  #              ELSE 1.0
+  #            END as similarity_score
+  #     FROM tickets
+  #     WHERE title ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%'
+  #     ORDER BY similarity_score ASC, ticket_id DESC
+  #     LIMIT 5;
   get-ticket-by-id:
     kind: postgres-sql
     source: postgresql
@@ -57,7 +68,7 @@ tools:
       - name: ticket_id
         type: string
         description: The unique ID of the ticket.
-    statement: SELECT * FROM tickets WHERE ticket_id = $1;
+    statement: SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time FROM tickets WHERE ticket_id = $1;
   get-tickets-by-assignee:
     kind: postgres-sql
     source: postgresql
@@ -66,7 +77,7 @@ tools:
       - name: assignee
         type: string
         description: The email of the assignee.
-    statement: SELECT * FROM tickets WHERE assignee ILIKE '%' || $1 || '%';
+    statement: SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time FROM tickets WHERE assignee ILIKE '%' || $1 || '%';
   update-ticket-priority:
     kind: postgres-sql
     source: postgresql
@@ -99,7 +110,7 @@ tools:
       - name: status
         type: string
         description: The status of the tickets to retrieve (e.g., 'Open', 'In Progress', 'Closed', 'Resolved').
-    statement: SELECT * FROM tickets WHERE status ILIKE '%' || $1 || '%';
+    statement: SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time FROM tickets WHERE status ILIKE '%' || $1 || '%';
   get-tickets-by-priority:
     kind: postgres-sql
     source: postgresql
@@ -108,7 +119,7 @@ tools:
       - name: priority
         type: string
         description: The priority of the tickets to retrieve (e.g., 'P0 - Critical', 'P1 - High', 'P2 - Medium', 'P3 - Low').
-    statement: SELECT * FROM tickets WHERE priority ILIKE '%' || $1 || '%';
+    statement: SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time FROM tickets WHERE priority ILIKE '%' || $1 || '%';
   create-new-ticket:
     kind: postgres-sql
     source: postgresql
@@ -144,11 +155,11 @@ tools:
       - name: date_field
         type: string
         description: The date field to filter by ('creation_time' or 'updated_time').
-    statement: SELECT * FROM tickets WHERE CASE WHEN $3 = 'creation_time' THEN creation_time ELSE updated_time END BETWEEN $1::timestamp AND $2::timestamp;
+    statement: SELECT ticket_id, title, description, assignee, priority, status, creation_time, updated_time FROM tickets WHERE CASE WHEN $3 = 'creation_time' THEN creation_time ELSE updated_time END BETWEEN $1::timestamp AND $2::timestamp;
 
 toolsets:
   tickets_toolset:
-    - search-tickets
+    # - search-tickets
     - get-ticket-by-id
     - get-tickets-by-assignee
     - get-tickets-by-status

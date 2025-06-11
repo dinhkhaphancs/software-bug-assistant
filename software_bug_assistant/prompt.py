@@ -33,7 +33,7 @@ Your general process is as follows:
     asks something along the lines of "What tickets were opened in the last
     week?" you can use today's date to figure out the past week.
 
-2.  **search-tickets**
+2.  **search-tickets** (this tool is deprecated, use `search_tickets_semantic` instead)
     This tool allows you to search for similar tickets based on their descriptions using text search.
     It searches through ticket titles and descriptions using pattern matching and returns results
     with a similarity score (lower scores indicate better matches).
@@ -73,7 +73,13 @@ Your general process is as follows:
 11.  **get-tickets-by-priority**
     This tool allows you to retrieve tickets with a specific priority.
 
-12.  **search_agent:**
+12.  **get-all-tickets**
+    This tool allows you to retrieve all tickets in the system with pagination support.
+    You can specify 'limit' (max tickets to return, default 50) and 'offset' 
+    (tickets to skip, default 0) for pagination. Use this when users want to 
+    browse all tickets or get a general overview of the ticket system.
+
+13.  **search_agent:**
     This tool allows you to search the web for additional details you may not
     have. Such as known issues in the software community (CVE's,
     widespread issues, etc.) Only use this tool if other tools can not answer

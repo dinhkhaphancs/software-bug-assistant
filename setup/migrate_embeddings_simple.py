@@ -35,14 +35,14 @@ def get_database_connection():
         logger.error(f"Database connection failed: {e}")
         raise
 
-def get_tickets_without_embeddings() -> List[Tuple[int, str, str]]:
+def get_tickets_without_embeddings() -> List[Tuple[int, str, str, str, str, str]]:
     """Get tickets that don't have embeddings yet."""
     conn = get_database_connection()
     cursor = conn.cursor()
     
     try:
         cursor.execute("""
-            SELECT ticket_id, title, description 
+            SELECT ticket_id, title, description, assignee, priority, status
             FROM tickets 
             WHERE embedding IS NULL
             ORDER BY ticket_id
@@ -88,11 +88,14 @@ def main():
             return
         
         # Process each ticket
-        for ticket_id, title, description in tickets:
+        for ticket_id, title, description, assignee, priority, status in tickets:
             logger.info(f"Processing ticket {ticket_id}: {title[:50]}...")
             
-            # Combine title and description for embedding
-            text_content = f"{title}\n\n{description or ''}"
+            # Combine title, description, priority, and status for embedding
+            # Include priority and status as they're important for ticket classification and search
+            text_content = f"Title: {title}\n\nDescription: {description or ''}\n\nPriority: {priority or ''}\n\nStatus: {status or ''}"
+            if assignee:
+                text_content += f"\n\nAssignee: {assignee}"
             
             # Generate embedding
             embedding = embedding_service.generate_embedding(text_content)
